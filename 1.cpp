@@ -52,7 +52,7 @@ int main(){
     std::list<std::list<std::vector<unsigned long> > > results;
     ProperSubsets<unsigned long, Hash> p(Fg);
     std::list<std::vector<unsigned long>> a,b,c,d;
-    for(auto it = data.cbegin(); it != data.cbegin() + 100 ; it+=1){
+    for(auto it = data.cbegin(); it != data.cbegin() + 100 ; it+=4){
         std::thread t0(&ProperSubsets<unsigned long, Hash>::operator(), &p, *it, std::ref(a));
         std::thread t1(&ProperSubsets<unsigned long, Hash>::operator(), &p, *(it+1), std::ref(b));
         std::thread t2(&ProperSubsets<unsigned long, Hash>::operator(), &p, *(it+2), std::ref(c));
