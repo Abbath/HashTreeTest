@@ -37,7 +37,6 @@ std::list<std::vector<Data> > ProperSubsets<Data, Hasher>::operator ()(const std
     t1.restart();
     SubsetGenerator<Data> subgen(X, X.size());
     auto subset = subgen.getNextSubset();
-    //std::list<std::vector<Data>> result;
     while( subset.size() > 0){
         if( tree.contains(subset)){
             result.push_back(subset);
@@ -49,12 +48,14 @@ std::list<std::vector<Data> > ProperSubsets<Data, Hasher>::operator ()(const std
     return result;
 }
 
-template<typename Data, /*template<class>*/ class Hasher>
+template<typename Data, class Hasher>
 void ProperSubsets<Data, Hasher>::setFG(const std::vector<std::vector<Data>> &FG){
-    cache = FG;
-    tree.erase();
-    for(const std::vector<Data>& x : cache){
-        tree.insert( x );
+    if(!std::equal(cache.begin(),cache.end(),FG.begin())){
+        cache = FG;
+        tree.erase();
+        for(const std::vector<Data>& x : cache){
+            tree.insert( x );
+        }
     }
 }
 

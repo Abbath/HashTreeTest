@@ -15,8 +15,8 @@ public:
 
 typedef std::vector<unsigned long> Data1;
 int main(){
-    std::ifstream dset("dataset0");
-    std::ifstream FGset("FG0");
+    std::ifstream dset("dataset");
+    std::ifstream FGset("FG");
     const int dataset_size = 1000;
     const int itemset_size = 20;
     std::vector<Data1> Fg;
@@ -24,7 +24,7 @@ int main(){
     srand(time(NULL));
     for(int i = 0; i < dataset_size/2; ++i){
         Data1 d;
-        int b = rand() % itemset_size/4;
+        int b = itemset_size/4;
         d.reserve(b);
         for(int j = 0; j < b; ++j){
             unsigned long a;
@@ -38,7 +38,7 @@ int main(){
     data.reserve(dataset_size);
     for(int i = 0; i < dataset_size; ++i){
         Data1 d;
-        int b =  itemset_size/0.75;
+        int b =  itemset_size;
         d.reserve(b);
         for(int j = 0; j < b; ++j){
             unsigned long a;
