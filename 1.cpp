@@ -5,7 +5,6 @@
 #include <future>
 #include <ctime>
 #include <functional>
-#include <boost/timer.hpp>
 class Hash{
 public:
     constexpr unsigned operator()(const unsigned long& d){
@@ -51,20 +50,15 @@ int main(){
     }
     std::list<std::list<std::vector<unsigned long> > > results;
     ProperSubsets<unsigned long, Hash> p(Fg);
-    std::list<std::vector<unsigned long>> a,b,c,d;
     for(auto it = data.cbegin(); it != data.cbegin() + 100 ; it+=4){
-        std::thread t0(&ProperSubsets<unsigned long, Hash>::operator(), &p, *it, std::ref(a));
-        std::thread t1(&ProperSubsets<unsigned long, Hash>::operator(), &p, *(it+1), std::ref(b));
-        std::thread t2(&ProperSubsets<unsigned long, Hash>::operator(), &p, *(it+2), std::ref(c));
-        std::thread t3(&ProperSubsets<unsigned long, Hash>::operator(), &p, *(it+3), std::ref(d));
-        t0.join();
-        t1.join();
-        t2.join();
-        t3.join();
-        results.push_back(a);
-        results.push_back(b);
-        results.push_back(c);
-        results.push_back(d);
+        auto a = std::async(std::launch::async, &ProperSubsets<unsigned long, Hash>::operator(), &p, *it);
+        auto b = std::async(std::launch::async, &ProperSubsets<unsigned long, Hash>::operator(), &p, *(it+1));
+        auto c = std::async(std::launch::async, &ProperSubsets<unsigned long, Hash>::operator(), &p, *(it+2));
+        auto d = std::async(std::launch::async, &ProperSubsets<unsigned long, Hash>::operator(), &p, *(it+3));
+        results.push_back(a.get());
+        results.push_back(b.get());
+        results.push_back(c.get());
+        results.push_back(d.get());
     }
 
     return 0;

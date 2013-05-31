@@ -5,7 +5,6 @@
 #include <set>
 #include <list>
 #include <algorithm>
-#include <boost/timer.hpp>
 
 template<typename Data, class Hasher>
 class HashTree
