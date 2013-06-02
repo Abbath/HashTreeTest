@@ -11,4 +11,5 @@ LIBS += -pthread
 
 HEADERS += \
     hashtree.hpp \
-    propersubsets.hpp
+    propersubsets.hpp \
+    hashtree_sup.hpp

@@ -1,5 +1,5 @@
-#ifndef HASHTREE_HPP
-#define HASHTREE_HPP
+#ifndef HASHTREESUP_HPP
+#define HASHTREESUP_HPP
 
 #include <iostream>
 #include <fstream>
@@ -9,13 +9,15 @@
 #include <algorithm>
 
 template<typename Data, class Hasher>
-class HashTree
+class HashTreeSup
 {
+    typedef std::vector<Data> Itemset;
+    typedef std::pair<std::vector<Data>,unsigned long> ItemsetSup;
 public:
-    HashTree();
-    ~HashTree();
-    void insert(const std::vector<Data>& d);
-    bool contains(const std::vector<Data>& d) const;
+    HashTreeSup();
+    ~HashTreeSup();
+    void insert(const ItemsetSup& d);
+    unsigned long contains(const Itemset& d) const;
     unsigned int getCap() const {return capacity;}
     void erase();
     void out(std::ofstream &stream);
@@ -23,7 +25,7 @@ private:
     static const int size = 10;
     unsigned capacity;
     struct Node{
-        std::list<std::vector<Data>> data;
+        std::list<ItemsetSup> data;
         std::vector<Node*> children;
         Node();
     };
@@ -34,29 +36,29 @@ private:
 };
 
 template<typename Data, class Hasher>
-HashTree<Data, Hasher>::HashTree() :  capacity(0), root(new Node)
+HashTreeSup<Data, Hasher>::HashTreeSup() :  capacity(0), root(new Node)
 {
     root->children.resize(size);
 }
 
 template<typename Data, class Hasher>
-HashTree<Data, Hasher>::~HashTree(){
+HashTreeSup<Data, Hasher>::~HashTreeSup(){
     erase();
 }
 
 template<typename Data, class Hasher>
-HashTree<Data, Hasher>::Node::Node() : children(size){}
+HashTreeSup<Data, Hasher>::Node::Node() : children(size){}
 
 template<typename Data, class Hasher>
-void HashTree<Data, Hasher>::insert(const std::vector<Data> &d){
+void HashTreeSup<Data, Hasher>::insert(const ItemsetSup& d){
     Node * p = root;
-    for(auto i = d.begin(); i !=  d.end(); ++i){
+    for(auto i = d.first.begin(); i !=  d.first.end(); ++i){
         unsigned h = hash( *i );
         if( p->children[h] == nullptr){
             p->children[h] = new Node;
             capacity++;
         }
-        if( i == d.end()-1  ){
+        if( i == d.first.end()-1  ){
             p->children[h]->data.push_back(d);
             return;
         }else{
@@ -66,7 +68,7 @@ void HashTree<Data, Hasher>::insert(const std::vector<Data> &d){
 }
 
 template<typename Data, class Hasher>
-bool HashTree<Data, Hasher>::contains(const std::vector<Data> &d) const{
+unsigned long HashTreeSup<Data, Hasher>::contains(const Itemset &d) const{
     Node * p = root;
     for(unsigned int i = 0; i < d.size(); ++i){
         unsigned h = hash( d[i] );
@@ -76,17 +78,21 @@ bool HashTree<Data, Hasher>::contains(const std::vector<Data> &d) const{
             p = p->children[h];
         }
     }
-    bool res =  ( p->data.end() != std::find(p->data.begin(), p->data.end(),d));
-    return res;
+    auto res = std::find_if(p->data.begin(),p->data.end(),[&](ItemsetSup& x){return d == x.first;});
+    if(res != p->data.end()){
+        return (*res).second;
+    }else{
+        return 0;
+    }
 }
 
 template<typename Data, class Hasher>
-void HashTree<Data, Hasher>::erase(){
+void HashTreeSup<Data, Hasher>::erase(){
     erase_rec(root);
 }
 
 template<typename Data, class Hasher>
-void HashTree<Data, Hasher>::erase_rec(Node *p){
+void HashTreeSup<Data, Hasher>::erase_rec(Node *p){
     bool empty = true;
     if( nullptr != p ){
         for( auto it = p->children.begin(); it != p->children.end(); ++it){
@@ -105,18 +111,18 @@ void HashTree<Data, Hasher>::erase_rec(Node *p){
 }
 
 template<typename Data, class Hasher>
-void HashTree<Data,Hasher>::out(std::ofstream& stream){
+void HashTreeSup<Data,Hasher>::out(std::ofstream& stream){
     out(stream,root,1);
 }
 
 template<typename Data, class Hasher>
-void HashTree<Data,Hasher>::out(std::ofstream& stream, Node * p, unsigned n){
+void HashTreeSup<Data,Hasher>::out(std::ofstream& stream, Node * p, unsigned n){
     if(p->data.size() > 0){
         for(auto& x : p->data){
             for (unsigned i = 0; i < n-1; ++i) {
                 stream << ' ';
             }
-            for(auto& y : x){
+            for(auto& y : x.first){
                 stream << ' ' << y;
             }
             stream << ';';
@@ -130,4 +136,4 @@ void HashTree<Data,Hasher>::out(std::ofstream& stream, Node * p, unsigned n){
     }
 }
 
-#endif // HASHTREE_HPP
+#endif // HASHTREESUP_HPP
