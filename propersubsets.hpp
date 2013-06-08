@@ -5,7 +5,6 @@
 #include <iostream>
 #include <functional>
 #include <future>
-#include "hashtree.hpp"
 #include "hashtree_sup.hpp"
 #include "propersubsets.hpp"
 
@@ -55,12 +54,12 @@ ProperSubsets<Data, Hasher>::ProperSubsets(const DatasetSup& FG) : minlen(FG[0].
 template<typename Data, class Hasher>
 std::list<std::pair<std::vector<Data>,unsigned long> > ProperSubsets<Data, Hasher>::operator ()(const Itemset& X){
     std::list<ItemsetSup> result;
-    for(unsigned int i=minlen;i<=maxlen;++i){
+    /*for(unsigned int i=minlen;i<=maxlen;++i){
         std::vector<Data> tmp(X.size());
         DatasetSup tmp0(maxlen - minlen + 1);
         run_time(X.size(),i,tmp,tmp0,result,X);
-    }
-    //run_memory(X,result);
+    }*/
+    run_memory(X,result);
     return result;
 }
 
