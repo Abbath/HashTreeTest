@@ -20,13 +20,19 @@ public:
     std::list<ItemsetSup> operator()(const Itemset&);
     void setFG(const DatasetSup &FG);
 private:
-    void run(int p,int k,Itemset& t, DatasetSup& t0,std::list<ItemsetSup>& result, const Itemset& data, int q=0,int r=0);
+    void run_time(int p,int k,Itemset& t, DatasetSup& t0,std::list<ItemsetSup>& result, const Itemset& data, int q=0,int r=0);
+    void run_memory(const Itemset& data, std::list<ItemsetSup>& result);
     unsigned int minlen;
     unsigned int maxlen;
     std::vector<ItemsetSup> cache;
     //HashTree<Data,Hasher> tree;
     HashTreeSup<Data,Hasher> treesup;
 };
+
+template<typename Data, class Hasher>
+void ProperSubsets<Data, Hasher>::run_memory(const ProperSubsets::Itemset &data, std::list<ProperSubsets::ItemsetSup> &result){
+    result = treesup.getSubsets(data);
+}
 
 template<typename Data, class Hasher>
 ProperSubsets<Data, Hasher>::ProperSubsets(const DatasetSup& FG) : minlen(FG[0].first.size()), maxlen(1), cache(FG){
@@ -52,8 +58,9 @@ std::list<std::pair<std::vector<Data>,unsigned long> > ProperSubsets<Data, Hashe
     for(unsigned int i=minlen;i<=maxlen;++i){
         std::vector<Data> tmp(X.size());
         DatasetSup tmp0(maxlen - minlen + 1);
-        run(X.size(),i,tmp,tmp0,result,X);
+        run_time(X.size(),i,tmp,tmp0,result,X);
     }
+    //run_memory(X,result);
     return result;
 }
 
@@ -77,7 +84,7 @@ void ProperSubsets<Data, Hasher>::setFG(const DatasetSup &FG){
 }
 
 template<typename Data, typename Hasher>
-void ProperSubsets<Data,Hasher>::run(int len, int sublen, Itemset& t, DatasetSup& t0, std::list<ItemsetSup> &result,const Itemset& data, int q, int r){
+void ProperSubsets<Data,Hasher>::run_time(int len, int sublen, Itemset& t, DatasetSup& t0, std::list<ItemsetSup> &result,const Itemset& data, int q, int r){
     if(t0[0].first.size() != minlen){
         for(unsigned int i = 0; i <= maxlen-minlen; ++i){
             t0[i].first.resize(i+minlen);
@@ -92,7 +99,7 @@ void ProperSubsets<Data,Hasher>::run(int len, int sublen, Itemset& t, DatasetSup
     }else{
         for(int i = r; i < len; ++i){
             t[q] = data[i];
-            run(len,sublen,t,t0,result,data,q + 1,i + 1);
+            run_time(len,sublen,t,t0,result,data,q + 1,i + 1);
         }
     }
 }

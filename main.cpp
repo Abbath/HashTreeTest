@@ -17,40 +17,10 @@ public:
 
 typedef std::vector<unsigned long> Data1;
 int main(){
-    std::ifstream dset("chess_s_FC.res");
-    std::ifstream FGset("chess_s.res");
-    //    const int dataset_size = 1000000;
-    //    const int itemset_size = 10;
+    std::ifstream dset("117_FC.res");
+    std::ifstream FGset("117.res");
     std::vector<std::pair<Data1, unsigned long> > Fg;
-    //        Fg.reserve(dataset_size/10);
-    //        srand(time(NULL));
-    //        for(int i = 0; i < dataset_size/2; ++i){
-    //            Data1 d;
-    //            int b = itemset_size/2;
-    //            d.reserve(b);
-    //            for(int j = 0; j < b; ++j){
-    //                unsigned long a;
-    //                FGset >> a;
-    //                d.push_back(a);
-    //            }
-    //            std::sort(d.begin(),d.end());
-    //            Fg.push_back(d);
-    //        }
     std::vector<Data1> data;
-    //        data.reserve(dataset_size);
-    //        for(int i = 0; i < dataset_size; ++i){
-    //            Data1 d;
-    //            int b =  itemset_size;
-    //            d.reserve(b);
-    //            for(int j = 0; j < b; ++j){
-    //                unsigned long a;
-    //                dset >> a;
-
-    //                d.push_back(a);
-    //            }
-    //            std::sort(d.begin(),d.end());
-    //            data.push_back(d);
-    //        }
     char tmp[500];
     dset.getline(tmp,500);
     while (dset.good()){
@@ -99,7 +69,8 @@ int main(){
     std::list<std::list<std::pair<std::vector<unsigned long>,unsigned long> > > results;
     ProperSubsets<unsigned long, Hash> p(Fg);
     unsigned int num = data.size();
-    for(auto it = data.cbegin(); data.cend() - it > 4; it+=4){
+    std::ofstream res("res.dat");
+    /*for(auto it = data.cbegin(); data.cend() - it > 4; it+=4){
         auto a = std::async(std::launch::async, &ProperSubsets<unsigned long, Hash>::operator(), &p, *it);
         auto b = std::async(std::launch::async, &ProperSubsets<unsigned long, Hash>::operator(), &p, *(it+1));
         auto c = std::async(std::launch::async, &ProperSubsets<unsigned long, Hash>::operator(), &p, *(it+2));
@@ -110,24 +81,28 @@ int main(){
         results.push_back(c.get());
         results.push_back(d.get());
 
+        if( results.size() > 10000){
+            for(auto& x : results){
+                for(auto& y : x){
+                    res << "(";
+                    for(auto& z : y.first){
+                        res << z;
+                        if(z != *(y.first.end() - 1)) res << ' ';
+                    }
+                    res << ") " << y.second << std::endl;
+                }
+                res << std::endl;
+            }
+            results.clear();
+        }
+
         unsigned nn = (it - data.cbegin());
         std::cout.precision(2);
         if( nn / (num / 200) % 5 == 0 )
         std::cout << static_cast<unsigned>(ceil(nn * 100. / num)) << '%' << std::flush << '\r' ;
-    }
+    }*/
     std::cout << std::endl;
-    std::ofstream res("res.dat");
-    for(auto& x : results){
-        for(auto& y : x){
-            res << "(";
-            for(auto& z : y.first){
-                res << z;
-                if(z != *(y.first.end() - 1)) res << ' ';
-            }
-            res << ") " << y.second << std::endl;
-        }
-        res << std::endl;
-    }
+
     return 0;
 
 }
