@@ -2,11 +2,9 @@
 #include <fstream>
 #include <thread>
 #include <future>
-#include <ctime>
-#include <string>
-#include <sstream>
 #include <functional>
-#include <boost/timer.hpp>
+#include <ctime>
+#include <sstream>
 #include "propersubsets.hpp"
 class Hash{
 public:
@@ -16,9 +14,12 @@ public:
 };
 
 typedef std::vector<unsigned long> Data1;
-int main(){
-    std::ifstream dset("chess_s_FC.res");
-    std::ifstream FGset("chess_s.res");
+int main(int argc, char** argv){
+    if(argc != 3){
+        std::cerr << "Wrong parameters";
+    }
+    std::ifstream dset(argv[1]);
+    std::ifstream FGset(argv[2]);
     std::vector<std::pair<Data1, unsigned long> > Fg;
     std::vector<Data1> data;
     char tmp[500];
@@ -70,8 +71,7 @@ int main(){
     ProperSubsets<unsigned long, Hash> p(Fg);
    // unsigned int num = data.size();
     std::ofstream res("res.dat");
-    boost::timer t;
-    t.restart();
+    clock_t t = clock();
    // for(int i = 0; i < 100500; ++i){
     for(auto it = data.cbegin(); it != data.cend(); ++it){
         auto a = p(*it);
@@ -106,8 +106,8 @@ int main(){
        // std::cout << static_cast<unsigned>(ceil(nn * 100. / num)) << '%' << std::flush << '\r' ;
   // }
     }
-    std::cout << t.elapsed() << std::endl;
-    /*for(auto& x : results){
+    std::cout << (clock() - t)/(double)CLOCKS_PER_SEC;
+    for(auto& x : results){
         for(auto& y : x){
             res << "(";
             for(auto& z : y.first){
@@ -117,7 +117,7 @@ int main(){
             res << ") " << y.second << std::endl;
         }
         res << std::endl;
-    }*/
+    }
     std::cout << std::endl;
 
     return 0;

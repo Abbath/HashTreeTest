@@ -1,20 +1,21 @@
 #ifndef HASHTREESUP_HPP
 #define HASHTREESUP_HPP
 
-#include <iostream>
 #include <fstream>
 #include <vector>
-#include <set>
 #include <list>
 #include <algorithm>
 
 template<typename Data, class Hasher>
+/*!
+ * \brief The HashTreeSup class
+ */
 class HashTreeSup
 {
     typedef std::vector<Data> Itemset;
     typedef std::pair<std::vector<Data>,unsigned long> ItemsetSup;
 public:
-    HashTreeSup();
+    HashTreeSup(unsigned int s);
     ~HashTreeSup();
     void insert(const ItemsetSup& d);
     unsigned long contains(const Itemset& d) const;
@@ -23,14 +24,14 @@ public:
     void erase();
     void out(std::ofstream &stream);
 private:
-    static const int size = 17;
+    const int size;
     unsigned capacity;
     struct Node{
         std::list<ItemsetSup> data;
         std::vector<Node*> children;
-        Node();
+        Node(unsigned int s);
     };
-    void run(Node * p, std::list<ItemsetSup>& results, const Itemset& data, unsigned int l = 0);
+    void run(const Node * p, std::list<ItemsetSup>& results, const Itemset& data, const Itemset& hashed, const unsigned int l = 0);
     void out(std::ofstream& stream, Node * p, unsigned n);
     Node * root;
     Hasher hash;
@@ -38,27 +39,42 @@ private:
 };
 
 template<typename Data, class Hasher>
+/*!
+ * \brief HashTreeSup<Data, Hasher>::getSubsets
+ * \param data
+ * \return
+ */
 std::list<std::pair<std::vector<Data>,unsigned long>> HashTreeSup<Data,Hasher>::getSubsets(const Itemset &data){
     std::list<ItemsetSup> results;
-    run(root,results,data);
+    Itemset hashed(data.size());
+    for(auto it = data.cbegin();it != data.cend(); ++it){
+        hashed[ it - data.cbegin() ] = hash(*it);
+    }
+    run(root,results,data,hashed);
     return results;
 }
 
 template<typename Data, class Hasher>
-void HashTreeSup<Data,Hasher>::run(Node *p, std::list<ItemsetSup> &results, const Itemset &data, unsigned l){
+/*!
+ * \brief HashTreeSup<Data, Hasher>::run
+ * \param p
+ * \param results
+ * \param data
+ * \param l
+ */
+void HashTreeSup<Data,Hasher>::run(const Node *p, std::list<ItemsetSup> &results, const Itemset &data, const Itemset& hashed,const unsigned l){
     std::vector<bool> done(size);
-    if(p->data.size() > 0){
-        for(auto jt = p->data.begin(); jt != p->data.end(); ++ jt){
-            const Itemset& itemset = (*jt).first;
-            if(std::includes(data.cbegin(),data.cend(),itemset.cbegin(),itemset.cend())){
-                results.push_back( *jt );
-            }
+    for(auto jt = p->data.cbegin(); jt != p->data.cend(); ++jt){
+        const Itemset& itemset = (*jt).first;
+        if(data.size() >= itemset.size() && std::includes(data.cbegin(),data.cend(),itemset.cbegin(),itemset.cend())){
+            results.push_back( *jt );
         }
     }
-    for(auto it = data.begin() + l; it != data.end(); ++it){
-        unsigned h = hash(*it);
+    unsigned h;
+    for(unsigned i = 0 + l; i <  data.size(); ++i){
+        h = hashed[i];
         if(!done[h] && p->children[h]){
-            run(p->children[h],results,data,l + 1);
+            run(p->children[h],results,data,hashed,l + 1);
             done[h] = true;
         }
     }
@@ -66,26 +82,41 @@ void HashTreeSup<Data,Hasher>::run(Node *p, std::list<ItemsetSup> &results, cons
 
 
 template<typename Data, class Hasher>
-HashTreeSup<Data, Hasher>::HashTreeSup() :  capacity(0), root(new Node)
+/*!
+ * \brief HashTreeSup<Data, Hasher>::HashTreeSup
+ * \param s
+ */
+HashTreeSup<Data, Hasher>::HashTreeSup(unsigned int s = 13) : size(s), capacity(0), root(new Node(s))
 {
     root->children.resize(size);
 }
 
 template<typename Data, class Hasher>
+/*!
+ * \brief HashTreeSup<Data, Hasher>::~HashTreeSup
+ */
 HashTreeSup<Data, Hasher>::~HashTreeSup(){
     erase();
 }
 
 template<typename Data, class Hasher>
-HashTreeSup<Data, Hasher>::Node::Node() : children(size){}
+/*!
+ * \brief HashTreeSup<Data, Hasher>::Node::Node
+ * \param s
+ */
+HashTreeSup<Data, Hasher>::Node::Node(unsigned int s) : children(s){}
 
 template<typename Data, class Hasher>
+/*!
+ * \brief HashTreeSup<Data, Hasher>::insert
+ * \param d
+ */
 void HashTreeSup<Data, Hasher>::insert(const ItemsetSup& d){
     Node * p = root;
     for(auto i = d.first.begin(); i !=  d.first.end(); ++i){
         unsigned h = hash( *i );
         if( p->children[h] == nullptr){
-            p->children[h] = new Node;
+            p->children[h] = new Node(size);
             capacity++;
         }
         if( i == d.first.end()-1  ){
@@ -98,6 +129,11 @@ void HashTreeSup<Data, Hasher>::insert(const ItemsetSup& d){
 }
 
 template<typename Data, class Hasher>
+/*!
+ * \brief HashTreeSup<Data, Hasher>::contains
+ * \param d
+ * \return
+ */
 unsigned long HashTreeSup<Data, Hasher>::contains(const Itemset &d) const{
     Node * p = root;
     for(unsigned int i = 0; i < d.size(); ++i){
@@ -117,11 +153,18 @@ unsigned long HashTreeSup<Data, Hasher>::contains(const Itemset &d) const{
 }
 
 template<typename Data, class Hasher>
+/*!
+ * \brief HashTreeSup<Data, Hasher>::erase
+ */
 void HashTreeSup<Data, Hasher>::erase(){
     erase_rec(root);
 }
 
 template<typename Data, class Hasher>
+/*!
+ * \brief HashTreeSup<Data, Hasher>::erase_rec
+ * \param p
+ */
 void HashTreeSup<Data, Hasher>::erase_rec(Node *p){
     bool empty = true;
     if( nullptr != p ){
@@ -141,11 +184,21 @@ void HashTreeSup<Data, Hasher>::erase_rec(Node *p){
 }
 
 template<typename Data, class Hasher>
+/*!
+ * \brief HashTreeSup<Data, Hasher>::out
+ * \param stream
+ */
 void HashTreeSup<Data,Hasher>::out(std::ofstream& stream){
     out(stream,root,1);
 }
 
 template<typename Data, class Hasher>
+/*!
+ * \brief HashTreeSup<Data, Hasher>::out
+ * \param stream
+ * \param p
+ * \param n
+ */
 void HashTreeSup<Data,Hasher>::out(std::ofstream& stream, Node * p, unsigned n){
     if(p->data.size() > 0){
         for(auto& x : p->data){

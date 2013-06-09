@@ -1,21 +1,23 @@
 #ifndef PROPERSUBSETS_HPP
 #define PROPERSUBSETS_HPP
+
 #include <vector>
 #include <list>
-#include <iostream>
 #include <functional>
 #include <future>
 #include "hashtree_sup.hpp"
-#include "propersubsets.hpp"
 
 template<typename Data, class Hasher>
+/*!
+ * \brief The ProperSubsets class
+ */
 class ProperSubsets{
     typedef std::vector<Data> Itemset;
     typedef std::vector<Itemset> Dataset;
     typedef std::pair<std::vector<Data>,unsigned long> ItemsetSup;
     typedef std::vector<ItemsetSup> DatasetSup;
 public:
-    ProperSubsets(const DatasetSup &FG);
+    ProperSubsets(const DatasetSup &FG, unsigned int);
     std::list<ItemsetSup> operator()(const Itemset&);
     void setFG(const DatasetSup &FG);
 private:
@@ -24,17 +26,26 @@ private:
     unsigned int minlen;
     unsigned int maxlen;
     std::vector<ItemsetSup> cache;
-    //HashTree<Data,Hasher> tree;
     HashTreeSup<Data,Hasher> treesup;
 };
 
 template<typename Data, class Hasher>
+/*!
+ * \brief ProperSubsets<Data, Hasher>::run_memory
+ * \param data
+ * \param result
+ */
 void ProperSubsets<Data, Hasher>::run_memory(const ProperSubsets::Itemset &data, std::list<ProperSubsets::ItemsetSup> &result){
     result = treesup.getSubsets(data);
 }
 
 template<typename Data, class Hasher>
-ProperSubsets<Data, Hasher>::ProperSubsets(const DatasetSup& FG) : minlen(FG[0].first.size()), maxlen(1), cache(FG){
+/*!
+ * \brief ProperSubsets<Data, Hasher>::ProperSubsets
+ * \param FG
+ * \param s
+ */
+ProperSubsets<Data, Hasher>::ProperSubsets(const DatasetSup& FG, unsigned int s = 13) : minlen(FG[0].first.size()), maxlen(1), cache(FG), treesup(s){
     Hasher h;
     h(FG[0].first[0]);
     for(const ItemsetSup& x : cache){
@@ -52,6 +63,11 @@ ProperSubsets<Data, Hasher>::ProperSubsets(const DatasetSup& FG) : minlen(FG[0].
 }
 
 template<typename Data, class Hasher>
+/*!
+ * \brief ProperSubsets<Data, Hasher>::operator ()
+ * \param X
+ * \return
+ */
 std::list<std::pair<std::vector<Data>,unsigned long> > ProperSubsets<Data, Hasher>::operator ()(const Itemset& X){
     std::list<ItemsetSup> result;
     /*for(unsigned int i=minlen;i<=maxlen;++i){
@@ -64,8 +80,12 @@ std::list<std::pair<std::vector<Data>,unsigned long> > ProperSubsets<Data, Hashe
 }
 
 template<typename Data, class Hasher>
+/*!
+ * \brief ProperSubsets<Data, Hasher>::setFG
+ * \param FG
+ */
 void ProperSubsets<Data, Hasher>::setFG(const DatasetSup &FG){
-    if(!std::equal(cache.begin(),cache.end(),FG.begin())){
+    if(cache != FG){
         cache = FG;
         treesup.erase();
         maxlen = 1;
@@ -83,6 +103,17 @@ void ProperSubsets<Data, Hasher>::setFG(const DatasetSup &FG){
 }
 
 template<typename Data, typename Hasher>
+/*!
+ * \brief ProperSubsets<Data, Hasher>::run_time
+ * \param len
+ * \param sublen
+ * \param t
+ * \param t0
+ * \param result
+ * \param data
+ * \param q
+ * \param r
+ */
 void ProperSubsets<Data,Hasher>::run_time(int len, int sublen, Itemset& t, DatasetSup& t0, std::list<ItemsetSup> &result,const Itemset& data, int q, int r){
     if(t0[0].first.size() != minlen){
         for(unsigned int i = 0; i <= maxlen-minlen; ++i){
