@@ -9,7 +9,7 @@
 class Hash{
 public:
     constexpr unsigned operator()(const unsigned long& d){
-        return d % 10;
+        return d % 17;
     }
 };
 
@@ -68,7 +68,7 @@ int main(int argc, char** argv){
     }
 
     std::list<std::list<std::pair<std::vector<unsigned long>,unsigned long> > > results;
-    ProperSubsets<unsigned long, Hash> p(Fg);
+    ProperSubsets<unsigned long, Hash> p(Fg,17);
    // unsigned int num = data.size();
     std::ofstream res("res.dat");
     clock_t t = clock();
