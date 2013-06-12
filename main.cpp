@@ -69,23 +69,25 @@ int main(int argc, char** argv){
 
     std::list<std::list<std::pair<std::vector<unsigned long>,unsigned long> > > results;
     ProperSubsets<unsigned long, Hash> p(Fg,17);
-   // unsigned int num = data.size();
+    unsigned int num = data.size();
+    std::cout << "Number of itemsets: " << num << std::endl;
+    std::cout << "Number of Frequent Generators: " << Fg.size() << std::endl;
     std::ofstream res("res.dat");
     clock_t t = clock();
-   // for(int i = 0; i < 100500; ++i){
+    // for(int i = 0; i < 100500; ++i){
     for(auto it = data.cbegin(); it != data.cend(); ++it){
         auto a = p(*it);
-       // auto a = std::async(std::launch::async, &ProperSubsets<unsigned long, Hash>::operator(), &p, *it);
-       // auto b = std::async(std::launch::async, &ProperSubsets<unsigned long, Hash>::operator(), &p, *(it+1));
-       // auto c = std::async(std::launch::async, &ProperSubsets<unsigned long, Hash>::operator(), &p, *(it+2));
-       // auto d = std::async(std::launch::async, &ProperSubsets<unsigned long, Hash>::operator(), &p, *(it+3));
+        // auto a = std::async(std::launch::async, &ProperSubsets<unsigned long, Hash>::operator(), &p, *it);
+        // auto b = std::async(std::launch::async, &ProperSubsets<unsigned long, Hash>::operator(), &p, *(it+1));
+        // auto c = std::async(std::launch::async, &ProperSubsets<unsigned long, Hash>::operator(), &p, *(it+2));
+        // auto d = std::async(std::launch::async, &ProperSubsets<unsigned long, Hash>::operator(), &p, *(it+3));
 
         results.push_back(a);
         //results.push_back(b.get());
-       // results.push_back(c.get());
-       // results.push_back(d.get());
+        // results.push_back(c.get());
+        // results.push_back(d.get());
 
-       /* if( results.size() > 10000){
+        /* if( results.size() > 10000){
             for(auto& x : results){
                 for(auto& y : x){
                     res << "(";
@@ -99,14 +101,17 @@ int main(int argc, char** argv){
             }
             results.clear();
         }*/
-
-        //unsigned nn = (it - data.cbegin());
-       // std::cout.precision(2);
-       // if( nn / (num / 200) % 5 == 0 )
-       // std::cout << static_cast<unsigned>(ceil(nn * 100. / num)) << '%' << std::flush << '\r' ;
-  // }
+        if(num < 100000){
+            unsigned nn = (it - data.cbegin());
+            std::cout.precision(2);
+            if( nn / (num / 200) % 5 == 0 ){
+                std::cout << static_cast<unsigned>(ceil(nn * 100. / num)) << '%' << std::flush << '\r' ;
+            }
+        }
+        // }
     }
-    std::cout << (clock() - t)/(double)CLOCKS_PER_SEC;
+    std::cout << "Elapsed time: " << (clock() - t)/(double)CLOCKS_PER_SEC << 's';
+    std::cout << std::endl << "Writing to disk..." << std::flush;
     for(auto& x : results){
         for(auto& y : x){
             res << "(";
@@ -118,8 +123,7 @@ int main(int argc, char** argv){
         }
         res << std::endl;
     }
-    std::cout << std::endl;
-
+    std::cout << std::endl << "Done." << std::endl;
     return 0;
 
 }

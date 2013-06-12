@@ -59,7 +59,7 @@ ProperSubsets<Data, Hasher>::ProperSubsets(const DatasetSup& FG, unsigned int s 
     }
     std::ofstream f("tree");
     treesup.out(f);
-    std::cout << treesup.getCap() << std::endl;
+    std::cout << "Nodes in HashTree: " << treesup.getCap() << std::endl;
 }
 
 template<typename Data, class Hasher>

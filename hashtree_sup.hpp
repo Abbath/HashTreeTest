@@ -71,7 +71,7 @@ void HashTreeSup<Data,Hasher>::run(const Node *p, std::list<ItemsetSup> &results
         }
     }
     unsigned h;
-    for(unsigned i = 0 + l; i <  data.size(); ++i){
+    for(unsigned i = 0 + l; i < data.size(); ++i){
         h = hashed[i];
         if(!done[h] && p->children[h]){
             run(p->children[h],results,data,hashed,l + 1);
