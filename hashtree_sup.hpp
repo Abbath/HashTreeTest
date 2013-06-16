@@ -51,7 +51,7 @@ std::list<std::pair<std::vector<Data>,unsigned long>> HashTreeSup<Data,Hasher>::
         hashed[ it - data.cbegin() ] = hash(*it);
     }
     run(root,results,data,hashed);
-    return results;
+    return std::move(results);
 }
 
 template<typename Data, class Hasher>
@@ -113,6 +113,9 @@ template<typename Data, class Hasher>
  */
 void HashTreeSup<Data, Hasher>::insert(const ItemsetSup& d){
     Node * p = root;
+    if(d.first.size() == 0){
+        p->data.push_back(d);
+    }
     for(auto i = d.first.begin(); i !=  d.first.end(); ++i){
         unsigned h = hash( *i );
         if( p->children[h] == nullptr){

@@ -50,6 +50,19 @@ int main(int argc, char** argv){
         std::pair<Data1,unsigned long> a;
         char ch;
         ss >> ch;
+        ss >> ch;
+        if(ch == ')'){
+            unsigned long tt;
+            ss >> tt;
+            Data1 d(0);
+            a.first = d;
+            a.second = tt;
+            Fg.push_back(a);
+            FGset.getline(tmp,500);
+            continue;
+        }else{
+            ss.putback(ch);
+        }
         while(true){
             unsigned long tt;
             ss >> tt;
@@ -104,14 +117,14 @@ int main(int argc, char** argv){
         if(num < 100000){
             unsigned nn = (it - data.cbegin());
             std::cout.precision(2);
-            if( nn / (num / 200) % 5 == 0 ){
+            if( (unsigned) (nn / (num / 200.)) % 5 == 0 ){
                 std::cout << static_cast<unsigned>(ceil(nn * 100. / num)) << '%' << std::flush << '\r' ;
             }
         }
         // }
     }
     std::cout << "Elapsed time: " << (clock() - t)/(double)CLOCKS_PER_SEC << 's';
-    std::cout << std::endl << "Writing to disk..." << std::flush;
+    /*std::cout << std::endl << "Writing to disk..." << std::flush;
     for(auto& x : results){
         for(auto& y : x){
             res << "(";
@@ -122,7 +135,7 @@ int main(int argc, char** argv){
             res << ") " << y.second << std::endl;
         }
         res << std::endl;
-    }
+    }*/
     std::cout << std::endl << "Done." << std::endl;
     return 0;
 

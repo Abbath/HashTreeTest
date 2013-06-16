@@ -14,7 +14,7 @@ template<typename Data, class Hasher>
 class ProperSubsets{
     typedef std::vector<Data> Itemset;
     typedef std::vector<Itemset> Dataset;
-    typedef std::pair<std::vector<Data>,unsigned long> ItemsetSup;
+    typedef std::pair<Itemset,unsigned long> ItemsetSup;
     typedef std::vector<ItemsetSup> DatasetSup;
 public:
     ProperSubsets(const DatasetSup &FG, unsigned int);
@@ -76,7 +76,7 @@ std::list<std::pair<std::vector<Data>,unsigned long> > ProperSubsets<Data, Hashe
         run_time(X.size(),i,tmp,tmp0,result,X);
     }*/
     run_memory(X,result);
-    return result;
+    return std::move(result);
 }
 
 template<typename Data, class Hasher>
